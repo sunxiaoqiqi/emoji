@@ -1,0 +1,5 @@
+{
+  "name": "WeMoji Maker",
+  "description": "A professional tool for generating, editing, and packaging WeChat sticker packs using Gemini AI. Supports static and dynamic source generation with automatic formatting.",
+  "requestFramePermissions": []
+}

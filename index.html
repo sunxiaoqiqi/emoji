@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WeMoji Maker - AI Sticker Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Artistic Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;700;900&family=Zcool+KuaiLe&family=Comic+Sans+MS&family=Kalam:wght@300;400;700&family=Fredoka+One&family=Bungee&family=Dancing+Script:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- GIF.js for animation generation (本地文件，支持 Web Workers) -->
+    <script src="/gif.js"></script>
+    
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              wechat: {
+                green: '#07C160',
+                dark: '#06AD56',
+                bg: '#F5F5F5',
+                light: '#EDEDED'
+              }
+            },
+            fontFamily: {
+              'mashan': ['"Ma Shan Zheng"', 'cursive'],
+              'kuaile': ['"Zcool KuaiLe"', 'cursive'],
+              'noto': ['"Noto Sans SC"', 'sans-serif'],
+              'comic': ['"Comic Sans MS"', 'cursive'],
+              'kalam': ['"Kalam"', 'cursive'],
+              'fredoka': ['"Fredoka One"', 'cursive'],
+              'bungee': ['"Bungee"', 'cursive'],
+              'dancing': ['"Dancing Script"', 'cursive'],
+              'orbitron': ['"Orbitron"', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "jszip": "https://aistudiocdn.com/jszip@^3.10.1"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-wechat-bg text-gray-800 antialiased h-screen overflow-hidden font-noto">
+    <div id="root" class="h-full"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
