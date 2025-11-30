@@ -3,23 +3,73 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "electron/main.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "concurrently \"npm run dev:web\" \"npm run dev:electron\"",
+    "dev:web": "vite",
+    "dev:electron": "wait-on http://localhost:5173 && electron .",
+
+    "build:web": "vite build",
+    "build:electron": "electron-builder",
+    "build": "npm run build:web && npm run build:electron",
+
     "preview": "vite preview"
   },
+  "build": {
+    "appId": "com.wemoji.app",
+    "productName": "WemojiMaker",
+    "directories": {
+      "output": "dist_electron"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "asar": false,
+
+    "win": {
+      "target": [
+        "portable"
+      ],
+      "icon": null,
+      "signAndEditExecutable": false,
+      "signExts": []
+    },
+
+    "nsis": {
+      "artifactName": null,
+      "oneClick": false,
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false,
+      "include": null,
+      "unicode": false
+    },
+
+    "electronDownload": {
+      "mirror": "https://npmmirror.com/mirrors/electron/"
+    },
+
+    "npmRebuild": false,
+    "buildDependenciesFromSource": false
+  },
+
+
   "dependencies": {
-    "react": "^19.2.0",
-    "lucide-react": "^0.555.0",
-    "react-dom": "^19.2.0",
     "@google/genai": "^1.30.0",
+    "gif.js": "^0.2.0",
     "jszip": "^3.10.1",
-    "gif.js": "^0.2.0"
+    "lucide-react": "^0.555.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
+    "concurrently": "^9.2.1",
+    "electron": "^39.2.4",
+    "electron-builder": "^26.0.12",
     "typescript": "~5.8.2",
-    "vite": "^6.2.0"
+    "vite": "^6.2.0",
+    "wait-on": "^9.0.3"
   }
 }

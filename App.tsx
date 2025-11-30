@@ -739,6 +739,17 @@ export default function App() {
                                         <RefreshCw size={18} />
                                     </button>
                                 )}
+                                <button 
+                                    onClick={() => {
+                                        if (confirm('确定要删除这个表情包吗？')) {
+                                            setStickers(prev => prev.filter(s => s.id !== sticker.id));
+                                        }
+                                    }}
+                                    className="bg-red-500 text-white p-2 rounded-full hover:scale-110 transition-transform shadow-lg hover:bg-red-600"
+                                    title="Delete Sticker"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
                             </div>
                         </>
                     ) : (

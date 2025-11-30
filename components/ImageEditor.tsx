@@ -51,6 +51,7 @@ export const ImageEditor = ({ sticker, onSave, onClose, lang }: ImageEditorProps
   
   // Preview State
   const [showPreview, setShowPreview] = useState(false);
+  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
 
   // Init
   useEffect(() => {
@@ -110,9 +111,22 @@ export const ImageEditor = ({ sticker, onSave, onClose, lang }: ImageEditorProps
         for (const selection of selections) {
           if (!selection.mask) continue;
           const maskData = selection.mask.data;
+          
+          // 在应用遮罩前，先获取选区左边（或周围）的颜色用于填充
+          const fillColor = getFillColorFromSelection(staticData, selection);
+          
           for (let i = 0; i < staticData.data.length; i += 4) {
             const maskAlpha = maskData[i + 3] / 255;
-            staticData.data[i + 3] *= (1 - maskAlpha); // 反向遮罩
+            if (maskAlpha > 0.5) {
+              // 这是选中区域，用周围颜色填充
+              staticData.data[i] = fillColor.r;
+              staticData.data[i + 1] = fillColor.g;
+              staticData.data[i + 2] = fillColor.b;
+              staticData.data[i + 3] = fillColor.a;
+            } else {
+              // 未选中区域保留原样
+              staticData.data[i + 3] *= (1 - maskAlpha);
+            }
           }
         }
         staticCtx.putImageData(staticData, 0, 0);
@@ -334,6 +348,22 @@ export const ImageEditor = ({ sticker, onSave, onClose, lang }: ImageEditorProps
     
   }, [originalImage, imagePos, text, textConfig, activeTool, isDragging, editedImageData, animationConfig, animationFrame, currentSelection, selections]);
 
+  // 预览画布渲染 - 同步主画布内容到预览画布
+  useEffect(() => {
+    if (!showPreview) return;
+    
+    const mainCanvas = canvasRef.current;
+    const previewCanvas = previewCanvasRef.current;
+    if (!mainCanvas || !previewCanvas) return;
+    
+    const previewCtx = previewCanvas.getContext('2d');
+    if (!previewCtx) return;
+    
+    // 复制主画布内容到预览画布
+    previewCtx.clearRect(0, 0, STICKER_SIZE, STICKER_SIZE);
+    previewCtx.drawImage(mainCanvas, 0, 0);
+  }, [showPreview, originalImage, imagePos, text, textConfig, editedImageData, animationConfig, animationFrame, selections]);
+
   // Animation Preview Loop
   useEffect(() => {
     // 检查是否有启用的动效（全局或选区）
@@ -496,6 +526,43 @@ export const ImageEditor = ({ sticker, onSave, onClose, lang }: ImageEditorProps
       }
       setSelectionStart(null);
     }
+  };
+
+  // 从选区周围获取填充颜色（优先使用左边的颜色）
+  const getFillColorFromSelection = (imageData: ImageData, selection: CustomSelection): { r: number; g: number; b: number; a: number } => {
+    const x = Math.max(0, Math.min(Math.floor(selection.x), STICKER_SIZE - 1));
+    const y = Math.max(0, Math.min(Math.floor(selection.y), STICKER_SIZE - 1));
+    const w = Math.max(1, Math.min(Math.floor(selection.width), STICKER_SIZE - x));
+    const h = Math.max(1, Math.min(Math.floor(selection.height), STICKER_SIZE - y));
+    
+    // 优先从左边采样颜色
+    let sampleX = Math.max(0, x - 1);
+    let sampleY = y + Math.floor(h / 2); // 选区中间位置
+    
+    // 如果左边超出边界，尝试从上方、下方或右边采样
+    if (sampleX < 0) {
+      sampleX = x + w; // 右边
+      if (sampleX >= STICKER_SIZE) {
+        sampleX = x + Math.floor(w / 2); // 中间
+        sampleY = Math.max(0, y - 1); // 上方
+        if (sampleY < 0) {
+          sampleY = Math.min(STICKER_SIZE - 1, y + h); // 下方
+        }
+      }
+    }
+    
+    // 确保采样点在边界内
+    sampleX = Math.max(0, Math.min(sampleX, STICKER_SIZE - 1));
+    sampleY = Math.max(0, Math.min(sampleY, STICKER_SIZE - 1));
+    
+    // 获取采样点的颜色
+    const index = (sampleY * STICKER_SIZE + sampleX) * 4;
+    return {
+      r: imageData.data[index],
+      g: imageData.data[index + 1],
+      b: imageData.data[index + 2],
+      a: imageData.data[index + 3]
+    };
   };
 
   // 生成选区遮罩
@@ -933,7 +1000,7 @@ export const ImageEditor = ({ sticker, onSave, onClose, lang }: ImageEditorProps
                         <div className="flex justify-center mb-4">
                             <div className="border-2 border-gray-300 rounded-lg p-2 bg-transparent" style={{ width: STICKER_SIZE, height: STICKER_SIZE }}>
                                 <canvas 
-                                    ref={canvasRef}
+                                    ref={previewCanvasRef}
                                     width={STICKER_SIZE}
                                     height={STICKER_SIZE}
                                     className="w-full h-full"

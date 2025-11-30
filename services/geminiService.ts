@@ -1,4 +1,5 @@
 import { STYLE_PROMPTS, AI_PROVIDERS } from "../constants";
+import { GoogleGenAI, Type } from "@google/genai";
 import { getAIService, checkApiKey as checkApiKeyService, getSelectedProvider } from "./aiService";
 
 // 获取当前选择的模型
